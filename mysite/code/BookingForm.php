@@ -11,7 +11,7 @@ class BookingForm extends MultiForm
         $message = "finished<br>";
         if ($steps) {
             foreach ($steps as $step) {
-                $message = $message . '<br>' . Debug::show($step->loadData());
+                $message = $message . '<br>' . $step->loadData() . '<br>';
             }
         }
 
