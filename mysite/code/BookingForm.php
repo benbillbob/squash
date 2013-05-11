@@ -16,7 +16,7 @@ class BookingForm extends MultiForm
 
         return array(
             'Title' => 'Thank you for your submission',
-            'Content' => `You have successfully submitted the form. Thanks!`
+            'Content' => 'You have successfully submitted the form. Thanks!'
         );
     }
 }
