@@ -8,15 +8,13 @@ class BookingForm extends MultiForm
     {
         parent::finish($data, $form);
         $steps = DataObject::get('MultiFormStep', "SessionID = {$this->session->ID}");
+        $message = '';
         if ($steps) {
             foreach ($steps as $step) {
-                //Debug::show($step->loadData());
+                $message = $message . '<br>' . Debug::show($step->loadData());
             }
         }
 
-        return array(
-            'Title' => 'Thank you for your submission',
-            'Content' => 'You have successfully submitted the form. Thanks!'
-        );
+        return $this->controller->customise(array('Form' => false, 'Content' => $message))->renderWith('Page');
     }
 }
