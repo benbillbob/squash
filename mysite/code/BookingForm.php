@@ -8,7 +8,7 @@ class BookingForm extends MultiForm
     {
         parent::finish($data, $form);
         $steps = DataObject::get('MultiFormStep', "SessionID = {$this->session->ID}");
-        $message = '';
+        $message = "finished<br>";
         if ($steps) {
             foreach ($steps as $step) {
                 $message = $message . '<br>' . Debug::show($step->loadData());
