@@ -6,7 +6,7 @@ class BookingDateForm extends MultiFormStep
 
     function getFields()
     {
-        $file = 'people.log';
+        $file = '/var/phpdebug/log';
         $person = "John Smith\n";
         file_put_contents($file, $person, FILE_APPEND | LOCK_EX);
         return new FieldSet(
