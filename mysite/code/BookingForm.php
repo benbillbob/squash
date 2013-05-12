@@ -15,6 +15,13 @@ class BookingForm extends MultiForm
             }
         }
 
+        $booking = new Booking();
+        $booking->Date = '421';
+        $booking->Time = '5432';
+        $booking->Length = '4532';
+
+        $booking->write();
+
         return $this->controller->customise(array('Form' => false, 'Content' => $message))->renderWith('Page');
     }
 }
