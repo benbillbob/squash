@@ -6,10 +6,10 @@ class BookingDateForm extends MultiFormStep
 
     function getFields()
     {
-        $dateField = new DateField('BookingDate', 'Booking Date');
-        $dateField . setConfig('showcalendar');
-        return new FieldSet(
+        $dateField = new DateField_View_JQuery('BookingDate', 'Booking Date');
+        showcalendar
+		return new FieldSet(
             $dateField
         );
-    }
+	}
 }
