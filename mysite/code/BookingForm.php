@@ -16,7 +16,7 @@ class BookingForm extends MultiForm
         if ($steps) {
             foreach ($steps as $step) {
                 $arr = $step->loadData();
-                $formData = array_merge(formData, $arr);
+                $formData = array_merge($formData, $arr);
             }
         }
         {
