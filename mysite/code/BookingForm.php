@@ -34,6 +34,13 @@ class BookingForm extends MultiForm
         $booking->Time = $formData['BookingTime'];
         $booking->Length = $formData['BookingLength'];
 
+        Debug::show($formData['BookingDate']);
+        Debug::show($formData['BookingTime']);
+        Debug::show($formData['BookingLength']);
+        Debug::show($booking->Date);
+        Debug::show($booking->Time);
+        Debug::show($booking->Length);
+
         $booking->write();
 
         $this->session->delete();
