@@ -13,7 +13,10 @@ class BookingForm extends MultiForm
 
         if ($steps) {
             foreach ($steps as $step) {
-                $message = $message . '<br>' . $step->loadData() . '<br>';
+                $arr = $step->loadData();
+                foreach ($arr as $key => $value) {
+                    $message = $message . '<br>' . $key . ':' . $value . '<br>';
+                }
             }
         }
 
