@@ -31,8 +31,8 @@ class BookingForm extends MultiForm
          */
         $booking = new Booking();
         $booking->Date = $formData['BookingDate'];
-        $booking->TimeDate = $formData['BookingTime'];
-        $booking->LengthDate = $formData['BookingLength'];
+        $booking->Time = $formData['BookingTime'];
+        $booking->Length = $formData['BookingLength'];
 
         $booking->write();
 
