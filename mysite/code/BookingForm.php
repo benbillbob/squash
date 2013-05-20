@@ -11,19 +11,28 @@ class BookingForm extends MultiForm
 
         $steps = DataObject::get('MultiFormStep', "SessionID = {$this->session->ID}");
 
+        $formData = null;
+
         if ($steps) {
             foreach ($steps as $step) {
                 $arr = $step->loadData();
-                foreach ($arr as $key => $value) {
-                    $message = $message . '<br>' . $key . ':' . $value . '<br>';
-                }
+                $formData = array_merge(formData, $arr);
             }
         }
+        {
+            //user_error("No Data", )
+        }
+        /*
+         * BookingDate:2013-05-01
 
+        BookingTime:dfg
+
+        BookingLength:cvb
+         */
         $booking = new Booking();
-        $booking->Date = '421';
-        $booking->Time = '5432';
-        $booking->Length = '4532';
+        $booking->Date = $formData['BookingDate'];
+        $booking->Time = $formData['BookingTime'];
+        $booking->Length = $formData['BookingLength'];
 
         $booking->write();
 
