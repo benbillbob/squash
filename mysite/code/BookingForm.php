@@ -11,7 +11,7 @@ class BookingForm extends MultiForm
 
         $steps = DataObject::get('MultiFormStep', "SessionID = {$this->session->ID}");
 
-        $formData = null;
+        $formData = [];
 
         if ($steps) {
             foreach ($steps as $step) {
