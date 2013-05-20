@@ -30,9 +30,9 @@ class BookingForm extends MultiForm
         BookingLength:cvb
          */
         $booking = new Booking();
-        $booking->Date = $formData['BookingDate'];
-        $booking->Time = $formData['BookingTime'];
-        $booking->Length = $formData['BookingLength'];
+        $booking->Date->setValue($formData['BookingDate']);
+        $booking->TimeDate->setValue($formData['BookingTime']);
+        $booking->LengthDate->setValue($formData['BookingLength']);
 
         $booking->write();
 
