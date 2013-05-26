@@ -5,8 +5,12 @@
 		<div class="content">$Content</div>
 	</article>
 		<% if $TestDbAccess %>
-			<div>HELLO</div>
+			$TestDbAccess
 		<% end_if %>
+		<% if $TestDbAccess_Test %>
+			$TestDbAccess_Test
+		<% end_if %>
+
 		$Form
 		$PageComments
 </div>
