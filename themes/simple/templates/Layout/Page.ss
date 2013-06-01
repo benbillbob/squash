@@ -4,9 +4,6 @@
 		<h1>$Title</h1>
 		<div class="content">$Content</div>
 	</article>
-		<% if $TestDbAccess %>
-			<div>HELLO</div>
-		<% end_if %>
 		$Form
 		$PageComments
 </div>

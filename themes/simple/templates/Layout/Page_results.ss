@@ -25,7 +25,9 @@
         </li>
         <% end_loop %>
     </ul>
-    <% else %>
+    <% else_if $BookingResults %>
+		<p>Your booking was $BookingResults</p>
+	<% else %>
     <p>Sorry, your search query did not return any results.</p>
     <% end_if %>
 

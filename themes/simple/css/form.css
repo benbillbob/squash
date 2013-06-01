@@ -16,6 +16,15 @@ form {
 div.field {
     margin: 10px 0 15px;
 }
+
+div.field.checkbox {
+    margin: 0;
+}
+
+div.field.checkbox:disabled {
+    color: #999
+}
+
 fieldset {
     border: 0;
     margin: 0;
