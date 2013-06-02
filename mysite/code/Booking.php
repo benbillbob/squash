@@ -7,4 +7,7 @@ class Booking extends DataObject
 		'Date' => 'Date',
         'StartSlot' => 'Time',
         'EndSlot' => 'Time');
+	static $has_one = array(
+		'Member' => 'Member'
+	);
 }

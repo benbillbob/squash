@@ -258,9 +258,9 @@ class ContentController extends Controller {
 		// We might need to create a show in menu permission
  		if(isset($result)) {
 			foreach($result as $page) {
-				if($page->canView()) {
+				//if($page->canView()) {
 					$visible[] = $page;
-				}
+				//}
 			}
 		}
 

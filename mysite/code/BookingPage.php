@@ -6,7 +6,15 @@ class BookingPage extends Page
 
 class BookingPage_Controller extends Page_Controller
 {
-	static $allowed_actions = array('DateSelection', 'CourtSelection', 'TimeSelection', 'results');
+	static $allowed_actions = array(
+		'DateSelection',
+		'DateSelection_Result',
+		'CourtSelection',
+		'CourtSelection_Result',
+		'TimeSelection',
+		'TimeSelection_Result',
+		'results'
+	);
 
 	public function init()
 	{
@@ -29,22 +37,72 @@ class BookingPage_Controller extends Page_Controller
 		return true;
 	}
 
+	function CreateForm($name, $fields, $action, $validation, $clear)
+	{
+		$formAction = null;
+		$fieldList = new FieldList();
+
+		if ($clear)
+		{
+			$formAction = $name . '_Clear';
+			$action = 'Clear';
+			$validation = null;
+
+			foreach($fields as $field)
+			{
+				$field = $field->performReadonlyTransformation();
+				$fieldList->push($field);
+			}
+		}
+		else
+		{
+			$formAction = $name . '_Result';
+			foreach($fields as $field)
+			{
+				$fieldList->push($field);
+			}
+		}
+
+		$actions = FieldList::create(FormAction::create($formAction, $action));
+
+		return new Form($this, $name, $fieldList, $actions, $validation);
+	}
+
 	public function DateSelection()
 	{
 		if ($this->ShowDateSelection())
 		{
-			$dateField = new DateField('SelectedDate', 'Select Date', $this->getSelectedDate());
-			$dateField->setConfig('showcalendar', true);
-
-			$fields = new FieldList($dateField);
-
-			$actions = new FieldList(new FormAction('DateSelection_Result', 'Show details for selected date'));
-
-			$form = new Form($this, 'DateSelection', $fields, $actions, new RequiredFields(array('SelectedDate')));
-			$form->setFormAction($this->Link());
+			$fields = array(DateField::create('SelectedDate', 'Select Date', $this->getSelectedDate())->setConfig('showcalendar', true));
+			$requiredFields = RequiredFields::create(array('SelectedDate'));
+			$action = 'Show details for date';
+			$form = $this->CreateForm('DateSelection', $fields, $action, $requiredFields, ($this->getSelectedDate() != null));
 
 			return $form;
 		}
+	}
+
+	function DateSelection_Result($data, $form)
+	{
+		$selectedDate = strtotime($data['SelectedDate']);
+		$now = strToTime('today');
+
+		if ($selectedDate < $now)
+		{
+			$form->addErrorMessage('SelectedDate', 'Please select a future date', 'bad');
+			return $this->DateSelection_Clear(null, null);
+		}
+
+		return $this->redirectBack();
+	}
+
+	function DateSelection_Clear($data, $form)
+	{
+		$this->clearSessionVar('SelectedDate');
+		$this->clearSessionVar('SelectedCourt');
+		$this->clearSessionVar('SelectedStartTime');
+		$this->clearSessionVar('SelectedEndTime');
+
+		return $this->redirectBack();
 	}
 
 	public function ShowCourtSelection()
@@ -56,18 +114,26 @@ class BookingPage_Controller extends Page_Controller
 	{
 		if ($this->ShowCourtSelection())
 		{
-			$courtField = new DropdownField("SelectedCourt", "Select Court", BookingPage_Controller::$courts, $this->getSelectedCourt());
-
-			$fields = new FieldList($courtField);
-
-			$actions = new FieldList(new FormAction($this->Link(), 'Show booking sheet for selected court'));
-
-			$form = new Form($this, 'CourtSelection', $fields, $actions);
-
-			$form->setFormAction($this->Link());
+			$fields = FieldList::create(DropdownField::create("SelectedCourt", "Select Court", BookingPage_Controller::$courts, $this->getSelectedCourt()));
+			$action = 'Show booking sheet for selected court';
+			$form = $this->createForm('CourtSelection', $fields, $action, null, ($this->getSelectedCourt() != null));
 
 			return $form;
 		}
+	}
+
+	function CourtSelection_Result($data, $form)
+	{
+		return $this->redirectBack();
+	}
+
+	function CourtSelection_Clear($data, $form)
+	{
+		$this->clearSessionVar('SelectedCourt');
+		$this->clearSessionVar('SelectedStartTime');
+		$this->clearSessionVar('SelectedEndTime');
+
+		return $this->redirectBack();
 	}
 
 	public function ShowTimeSelection()
@@ -135,10 +201,8 @@ class BookingPage_Controller extends Page_Controller
 				$fields->push($field);
 			}
 
-			$actions = new FieldList(new FormAction($this->Link("results"), 'Book time'));
-			$form = new Form($this, 'TimeSelection', $fields, $actions);
-
-			$form->setFormAction($this->Link('results'));
+			$action = 'Book time';
+			$form = $this->createForm('TimeSelection', $fields, $action, null, false);
 
 			return $form;
 		}
@@ -156,6 +220,8 @@ class BookingPage_Controller extends Page_Controller
 		{
 			return $_SESSION[$varName];
 		}
+
+		return null;
 	}
 
 	function getSelectedDate()
@@ -194,9 +260,9 @@ class BookingPage_Controller extends Page_Controller
 		}
 	}
 
-	function results($data)
+	function TimeSelection_Result($data, $form)
 	{
-		$times = $data->postVars();
+		$times = $data;
 
 		$startTime = null;
 		$endTime = null;
@@ -216,18 +282,30 @@ class BookingPage_Controller extends Page_Controller
 			}
 		}
 
+		if ($startTime == null || $endTime == null)
+		{
+			$form->sessionMessage("Please select a time", 'bad');
+			return $this->redirectBack();
+		}
+
 		$booking = new Booking();
+		$booking->MemberID = Member::currentUserID();
 		$booking->Court = $this->getSelectedCourt();
 		$booking->Date = $this->getSelectedDate();
 		$booking->StartSlot = $startTime;
 		$booking->EndSlot = $endTime;
 
-		$result = 'fail';
-		if ($this->canBookTime($booking))
+		if (!$this->canBookTime($booking))
 		{
-			$result = 'success';
-			$booking->write();
+			$form->sessionMessage("Please select a time", 'bad');
+			return $this->redirectBack();
 		}
+
+		$datetime = new DateTime($this->getSelectedDate());
+
+		Debug::show($startTime);
+		$dateVal = $datetime->getTimestamp();
+		$result = date('D, d M Y ', $dateVal) . ' at '. $startTime .' Court ' . $booking->Court;
 
 		$data = array(
 			'BookingResults' => $result,
@@ -235,6 +313,8 @@ class BookingPage_Controller extends Page_Controller
 		);
 
 		$this->clearSessionData();
+
+		$booking->write();
 
 		return $this->owner->customise($data)->renderWith(array('Page_Results', 'Page'));
 	}
