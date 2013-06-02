@@ -38,10 +38,9 @@ class BookingPage_Controller extends Page_Controller
 
 			$fields = new FieldList($dateField);
 
-			$actions = new FieldList(new FormAction($this->Link(), 'Show details for selected date'));
+			$actions = new FieldList(new FormAction('DateSelection_Result', 'Show details for selected date'));
 
 			$form = new Form($this, 'DateSelection', $fields, $actions, new RequiredFields(array('SelectedDate')));
-
 			$form->setFormAction($this->Link());
 
 			return $form;
@@ -57,7 +56,8 @@ class BookingPage_Controller extends Page_Controller
 	{
 		if ($this->ShowCourtSelection())
 		{
-			$courtField = new DropdownField("SelectedCourt", "Select Court", BookingPage_Controller::$courts);
+			$courtField = new DropdownField("SelectedCourt", "Select Court", BookingPage_Controller::$courts, $this->getSelectedCourt());
+
 			$fields = new FieldList($courtField);
 
 			$actions = new FieldList(new FormAction($this->Link(), 'Show booking sheet for selected court'));
@@ -178,6 +178,22 @@ class BookingPage_Controller extends Page_Controller
 		return $this->getProperty('SelectedEndTime');
 	}
 
+	function clearSessionData()
+	{
+		$this->clearSessionVar('SelectedDate');
+		$this->clearSessionVar('SelectedCourt');
+		$this->clearSessionVar('SelectedStartTime');
+		$this->clearSessionVar('SelectedEndTime');
+	}
+
+	function clearSessionVar($varName)
+	{
+		if (isset($_SESSION[$varName]))
+		{
+			unset($_SESSION[$varName]);
+		}
+	}
+
 	function results($data)
 	{
 		$times = $data->postVars();
@@ -206,25 +222,21 @@ class BookingPage_Controller extends Page_Controller
 		$booking->StartSlot = $startTime;
 		$booking->EndSlot = $endTime;
 
-		Debug::show($booking);
-
-		$result = null;
+		$result = 'fail';
 		if ($this->canBookTime($booking))
 		{
-			Debug::message("Success");
 			$result = 'success';
 			$booking->write();
 		}
-		else
-		{
-			Debug::message("Fail");
-		}
 
 		$data = array(
-			'BookingResults' => results(),
+			'BookingResults' => $result,
 			'Title' => 'Booking Result'
 		);
-		return $this->owner->customise($data)->renderWith(array('Page_results', 'Page'));
+
+		$this->clearSessionData();
+
+		return $this->owner->customise($data)->renderWith(array('Page_Results', 'Page'));
 	}
 
 	function canBookTime($booking)
